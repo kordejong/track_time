@@ -11,6 +11,11 @@ on projects.
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: TrackTime.Record
+   :members:
+   :undoc-members:
+   :show-inheritance:
 """
 
 from TrackTime.Parser import Parser
+from TrackTime.Record import Record
