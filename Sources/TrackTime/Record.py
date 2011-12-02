@@ -13,10 +13,13 @@ class Record(object):
   project.
   """
 
-  def __init_(self):
+  def __init__(self,
+    date,
+    nrHours):
     """
     Create a record instance.
     """
     # date/time, period/nrHours, project
-    pass
+    self.date = date
+    self.nrHours = nrHours
 

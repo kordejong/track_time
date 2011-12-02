@@ -1,3 +1,4 @@
+import datetime
 import StringIO
 import unittest
 import TrackTime
@@ -40,9 +41,16 @@ class ParseTests(unittest.TestCase):
 
   def test011(self):
     """Parse <date>: <number of hours>"""
+    parser = TrackTime.Parser()
+    stream = StringIO.StringIO()
+    stream.write("20111202: 8")
+    records = parser.parse(stream.getvalue().split("\n"))
+    self.assertEqual(len(records), 1)
+    self.assertEqual(records[0].date, datetime.date(2011, 12, 2))
+    self.assertEqual(records[0].nrHours, 8)
+
     # ParseError when same date more than once.
     # 20111201: 8
-    pass
 
   def test021(self):
     """Parse <date>: <period>+"""
