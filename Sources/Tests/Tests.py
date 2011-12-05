@@ -15,7 +15,8 @@ if __name__ == "__main__":
   unittest.TextTestRunner(verbosity=2).run(
     unittest.TestLoader().loadTestsFromNames([
       "ImportTests.ImportTests",
-      "ParseTests.ParseTests",
+      "ParserTests.ParserTests",
+      "AggregatorTests.AggregatorTests",
     ]
   )
 )

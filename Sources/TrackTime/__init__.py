@@ -15,7 +15,14 @@ on projects.
    :members:
    :undoc-members:
    :show-inheritance:
-"""
 
+.. automodule:: TrackTime.Aggregator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+"""
+from TrackTime.Aggregator import Aggregator
 from TrackTime.Parser import Parser
 from TrackTime.Record import Record
+
