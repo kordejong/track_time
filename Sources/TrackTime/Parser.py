@@ -26,27 +26,74 @@ class Parser(object):
 
     Return list of TrackTime.Record instances.
     """
-    records = []
-    pattern = re.compile(r"(?P<date>[0-9]{8})\s*:\s*(?P<nrHours>[0-9]+)")
+    def dateTime(
+      date,
+      tokens):
+      assert(len(tokens) == 2)
+      nrHours = int(tokens[0])
+      assert(0 <= nrHours <= 24)
+      nrMinutes = int(tokens[1])
+      assert(0 <= nrMinutes <= 60)
+      return datetime.datetime(date.year, date.month, date.day, nrHours,
+        nrMinutes)
+
+    records = {}
+    periodPattern = r"\d{1,2}:\d{2}-\d{1,2}:\d{2}"
+    pattern = r"""
+      (?P<date>\d{8})
+      \s*:\s*
+      ((?P<periods>periodPattern(\s*,\s* periodPattern)*) |
+        (?P<nrHours>\d{1,2}(\.\d{1,2})?))
+    """
+    pattern = pattern.replace("periodPattern", periodPattern)
+    pattern = re.compile(pattern, re.VERBOSE)
     for line in stream:
       # Split at the comment sign. The stuff before the sign is relevant.
       line = line.split("#")[0].strip()
       if len(line) == 0:
         continue
 
-      # <date/time>: <nr hours> | <period>+: project
       match = re.match(pattern, line)
 
       if match is None:
-        raise Exception("bla")
+        raise Exception("Parse error: {0}".format(line))
+      elif match.end() != len(line):
+        raise Exception("Parse error at character {0}: {1}".format(
+          match.end() + 1, line))
 
       assert(not match.group("date") is None)
-      assert(not match.group("nrHours") is None)
+      assert(match.group("nrHours") or match.group("periods"))
+      assert(not (match.group("nrHours") and match.group("periods")))
 
       date = match.group("date")
       date = datetime.date(int(date[0:4]), int(date[4:6]), int(date[6:8]))
-      records.append(TrackTime.Record(date=date,
-        nrHours=int(match.group("nrHours"))))
+
+      if not date in records:
+        records[date] = []
+      if match.group("nrHours"):
+        records[date].append(TrackTime.Record(date=date,
+          nrHours=float(match.group("nrHours"))))
+      else:
+        nrHours = 0
+        # "9:30-12:00, 12:30-17:00" -> ["9:30-12:00", "12:30-17:00"]
+        periodStrings = [periodString.strip() for periodString in \
+          match.group("periods").split(",")]
+        for periodString in periodStrings:
+          # "9:30-12:00" -> ["9:30", "12:00"]
+          timeStrings = [timeString.strip() for timeString in \
+            periodString.split("-")]
+          assert(len(timeStrings) == 2)
+
+          # "9:30" -> ["9", "30"]
+          tokens = timeStrings[0].split(":")
+
+          startTime = dateTime(date, timeStrings[0].split(":"))
+          endTime = dateTime(date, timeStrings[1].split(":"))
+          assert(endTime >= startTime)
+          period = endTime - startTime
+          nrHours += period.total_seconds() / 60.0 / 60.0
+
+        records[date].append(TrackTime.Record(date=date, nrHours=nrHours))
 
       ### if record.find(":") == -1:
       ###   # Number of hours not entered. Assume 8 hours.
