@@ -6,7 +6,7 @@ import TrackTime
 
 
 
-class ParseTests(unittest.TestCase):
+class ParserTests(unittest.TestCase):
 
   def test001(self):
     """Parse empty file"""
