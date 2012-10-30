@@ -6,53 +6,51 @@ Aggregator
 import datetime
 
 
-
 class Aggregator(object):
-  """
-  Aggregator for aggregating records with information about hours spent working
-  per day and project.
-  """
-
-  def __init__(self,
-    workedHours,
-    sickHours,
-    vacationHours,
-    holidayHours):
     """
-    Create an Aggregator instance.
+    Aggregator for aggregating records with information about hours spent
+    working per day and project.
     """
-    self.workedHours = workedHours
-    self.sickHours = sickHours
-    self.vacationHours = vacationHours
-    self.holidayHours = holidayHours
 
-    # Aggregate per day.
-    self.hoursPerDay = {}
-    for collection in [self.workedHours, self.sickHours, self.vacationHours,
-      self.holidayHours]:
-      for date in collection:
-        year, week, day = date.isocalendar()
-        recordsPerDay = collection[date]
+    def __init__(self,
+            hours_worked,
+            hours_sick,
+            hours_vacation,
+            hours_holiday):
+        """
+        Create an Aggregator instance.
+        """
+        self.hours_worked = hours_worked
+        self.hours_sick = hours_sick
+        self.hours_vacation = hours_vacation
+        self.hours_holiday = hours_holiday
 
-        for record in recordsPerDay:
-          self.hoursPerDay[date] = self.hoursPerDay.get(date, 0) + \
-            record.nrHours
+        # Aggregate per day.
+        self.hours_per_day = {}
+        for collection in [self.hours_worked, self.hours_sick,
+                self.hours_vacation, self.hours_holiday]:
+            for date in collection:
+                year, week, day = date.isocalendar()
+                records_per_day = collection[date]
 
-    days = self.hoursPerDay.keys()
-    days.sort()
+                for record in records_per_day:
+                    self.hours_per_day[date] = \
+                        self.hours_per_day.get(date, 0) + record.nr_hours
 
-    year = datetime.timedelta(days=365)
-    if (days[-1] - days[0]) > year:
-      raise ValueError("No support for records from more than one year, yet")
+        days = self.hours_per_day.keys()
+        days.sort()
 
-    # Aggregate per week.
-    self.hoursPerWeek = {}
-    for week in range(1, 54):
-      self.hoursPerWeek[week] = 0.0
+        year = datetime.timedelta(days=365)
+        if (days[-1] - days[0]) > year:
+            raise ValueError(
+                "No support for records from more than one year, yet")
 
-    for date in self.hoursPerDay:
-      year, week, day = date.isocalendar()
-      self.hoursPerWeek[week] += self.hoursPerDay[date]
-      # self.lastWeekEntered = max(self.lastWeekEntered, week)
+        # Aggregate per week.
+        self.hours_per_week = {}
+        for week in range(1, 54):
+            self.hours_per_week[week] = 0.0
 
-
+        for date in self.hours_per_day:
+            year, week, day = date.isocalendar()
+            self.hours_per_week[week] += self.hours_per_day[date]
+            # self.last_week_entered = max(self.last_week_entered, week)

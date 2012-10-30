@@ -151,7 +151,7 @@ vacation left: %+g(h) / %+g(d)\n""" % (
 
     hoursPerDay.sort()
 
-    for tuple_ in hoursPerDay[-10:]:
+    for tuple_ in hoursPerDay[-15:]:
       stream.write("%s: %g\n" % (tuple_[0], tuple_[1]))
 
   def run(self):
@@ -215,4 +215,3 @@ if __name__ == "__main__":
          file(sick, "r"),
          options.contractHours,
          options.vacationDays).run())
-
