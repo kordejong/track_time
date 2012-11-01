@@ -47,11 +47,11 @@ def parse(
     period_pattern = r"\d{1,2}:\d{2}-\d{1,2}:\d{2}"
     pattern = r"""
         (?P<date>\d{8})
-        \s*:\s*
+        (\s*:\s*
         ((?P<periods>period_pattern(\s*,\s* period_pattern)*) |
             (?P<nr_hours>\d{1,2}(\.\d{1,2})?))
-        (\s*:\s*
-        (?P<project>\S+))?
+        (\s*:\s\s*
+        (?P<project>\S+))?)?
     """
     pattern = pattern.replace("period_pattern", period_pattern)
     pattern = re.compile(pattern, re.VERBOSE)
@@ -64,13 +64,13 @@ def parse(
         match = re.match(pattern, line)
 
         if match is None:
-            raise Exception("Parse error: {}".format(line))
+            raise ValueError("Parse error: {}".format(line))
         elif match.end() != len(line):
-            raise Exception("Parse error at character {}: {}".format(
+            raise ValueError("Parse error at character {}: {}".format(
                 match.end() + 1, line))
 
         assert(not match.group("date") is None)
-        assert(match.group("nr_hours") or match.group("periods"))
+        # assert(match.group("nr_hours") or match.group("periods"))
         assert(not (match.group("nr_hours") and match.group("periods")))
 
         date = match.group("date")
@@ -78,7 +78,10 @@ def parse(
 
         if not date in records:
             records[date] = []
-        if match.group("nr_hours"):
+        if not match.group("nr_hours") and not match.group("periods"):
+            records[date].append(TrackTime.Record(date=date,
+                nr_hours=8.0))
+        elif match.group("nr_hours"):
             records[date].append(TrackTime.Record(date=date,
                 nr_hours=float(match.group("nr_hours")),
                 project=match.group("project")))
@@ -102,8 +105,8 @@ def parse(
                 period = end_time - start_time
                 nr_hours += period.total_seconds() / 60.0 / 60.0
 
-            records[date].append(TrackTime.Record(date=date, nr_hours=nr_hours,
-                project=match.group("project")))
+            records[date].append(TrackTime.Record(date=date,
+                nr_hours=nr_hours, project=match.group("project")))
 
 
 

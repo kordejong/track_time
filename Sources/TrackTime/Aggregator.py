@@ -8,8 +8,8 @@ import datetime
 
 class Aggregator(object):
     """
-    Aggregator for aggregating records with information about hours spent
-    working per day and project.
+    Aggregator for aggregating records with information about how many hours
+    are spent on what (work, sick, holiday, vacation) and on what project.
     """
 
     def __init__(self,
@@ -25,6 +25,9 @@ class Aggregator(object):
         self.hours_vacation = hours_vacation
         self.hours_holiday = hours_holiday
 
+        self.contract_hours_per_week = 16
+        self.vacation_days_per_year = 15
+
         # Aggregate per day.
         self.hours_per_day = {}
         for collection in [self.hours_worked, self.hours_sick,
@@ -35,7 +38,7 @@ class Aggregator(object):
 
                 for record in records_per_day:
                     self.hours_per_day[date] = \
-                        self.hours_per_day.get(date, 0) + record.nr_hours
+                        self.hours_per_day.get(date, 0.0) + record.nr_hours
 
         days = self.hours_per_day.keys()
         days.sort()
@@ -47,10 +50,43 @@ class Aggregator(object):
 
         # Aggregate per week.
         self.hours_per_week = {}
-        for week in range(1, 54):
-            self.hours_per_week[week] = 0.0
-
         for date in self.hours_per_day:
             year, week, day = date.isocalendar()
-            self.hours_per_week[week] += self.hours_per_day[date]
-            # self.last_week_entered = max(self.last_week_entered, week)
+            self.hours_per_week[week] = self.hours_per_week.get(week, 0.0) + \
+                self.hours_per_day[date]
+
+    def print_report(self,
+            stream):
+        balance_in_hours = 0.0
+
+        for week in range(min(self.hours_per_week.keys()),
+                max(self.hours_per_week.keys()) + 1):
+            weekly_balance_in_hours = self.hours_per_week[week] - \
+                self.contract_hours_per_week
+            stream.write("%2d: %+6g\n" % (week, weekly_balance_in_hours))
+            balance_in_hours += weekly_balance_in_hours
+
+        stream.write("balance      : %+g(h) / %+g(d)\n" % (balance_in_hours,
+            balance_in_hours / 8.0))
+
+        hours_vacation_taken = 0.0
+
+        for date in self.hours_vacation:
+            hours_vacation_taken += self.hours_vacation[date]
+
+        vacation_balance_in_hours = self.vacation_days_per_year * 8.0 - \
+             hours_vacation_taken
+
+        stream.write("vacation left: %+g(h) / %+g(d)\n" % (
+            vacation_balance_in_hours,
+            vacation_balance_in_hours / 8.0))
+
+        hours_per_day = []
+
+        for date in self.hours_per_day:
+            hours_per_day.append([date, self.hours_per_day[date]])
+
+        hours_per_day.sort()
+
+        for tuple_ in hours_per_day[-15:]:
+            stream.write("%s: %g\n" % (tuple_[0], tuple_[1]))

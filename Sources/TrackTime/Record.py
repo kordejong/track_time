@@ -16,7 +16,7 @@ class Record(object):
     def __init__(self,
             date,
             nr_hours,
-            project):
+            project=None):
         """
         Create a record instance.
         """
