@@ -13,6 +13,8 @@ class Aggregator(object):
     """
 
     def __init__(self,
+            contract_hours_per_week,
+            vacation_days_per_year,
             hours_worked,
             hours_sick,
             hours_vacation,
@@ -20,13 +22,12 @@ class Aggregator(object):
         """
         Create an Aggregator instance.
         """
+        self.contract_hours_per_week = contract_hours_per_week
+        self.vacation_days_per_year = vacation_days_per_year
         self.hours_worked = hours_worked
         self.hours_sick = hours_sick
         self.hours_vacation = hours_vacation
         self.hours_holiday = hours_holiday
-
-        self.contract_hours_per_week = 16
-        self.vacation_days_per_year = 15
 
         # Aggregate per day.
         self.hours_per_day = {}
@@ -70,9 +71,9 @@ class Aggregator(object):
             balance_in_hours / 8.0))
 
         hours_vacation_taken = 0.0
-
         for date in self.hours_vacation:
-            hours_vacation_taken += self.hours_vacation[date]
+            for record in self.hours_vacation[date]:
+                hours_vacation_taken += record.nr_hours
 
         vacation_balance_in_hours = self.vacation_days_per_year * 8.0 - \
              hours_vacation_taken

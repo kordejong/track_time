@@ -88,13 +88,14 @@ class ParserTests(unittest.TestCase):
 
         stream = StringIO.StringIO(
             "20111202: 8  # Comment...\n"
-            "20111202: 4.5"
+            "20111202: 4.5\n"
+            "20111202: 3, 4"
         )
         records = TrackTime.parse(stream)
         self.assertEqual(len(records), 1)
         date = datetime.date(2011, 12, 2)
 
-        self.assertEqual(len(records[date]), 2)
+        self.assertEqual(len(records[date]), 3)
 
         record = records[date][0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
@@ -104,6 +105,11 @@ class ParserTests(unittest.TestCase):
         record = records[date][1]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 4.5)
+        self.assert_(record.project is None)
+
+        record = records[date][2]
+        self.assertEqual(record.date, datetime.date(2011, 12, 2))
+        self.assertEqual(record.nr_hours, 7.0)
         self.assert_(record.project is None)
 
     def test021(self):
@@ -130,7 +136,7 @@ class ParserTests(unittest.TestCase):
         self.assert_(record.project is None)
 
     def test022(self):
-        """Parse mix of <date>: <number of hours>| <period>+"""
+        """Parse mix of <date>: <number of hours> | <period>+"""
         stream = StringIO.StringIO(
             "20111202: 4.5\n"
             "20111205: 10:00-12:15, 12:45-17:45  # Comment..."
@@ -152,6 +158,7 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(record.nr_hours, 7.25)
         self.assert_(record.project is None)
 
+
         stream = StringIO.StringIO(
             "20111202: 4.5  # Comment...\n"
             "20111202: 10:00-12:15"
@@ -170,6 +177,21 @@ class ParserTests(unittest.TestCase):
         record = records[date][1]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 2.25)
+        self.assert_(record.project is None)
+
+
+        stream = StringIO.StringIO(
+            "20111202: 10:00-12:15, 4.5"
+        )
+        records = TrackTime.parse(stream)
+        self.assertEqual(len(records), 1)
+
+        date = datetime.date(2011, 12, 2)
+        self.assertEqual(len(records[date]), 1)
+
+        record = records[date][0]
+        self.assertEqual(record.date, datetime.date(2011, 12, 2))
+        self.assertEqual(record.nr_hours, 6.75)
         self.assert_(record.project is None)
 
     def test031(self):

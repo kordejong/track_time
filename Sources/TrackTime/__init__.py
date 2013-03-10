@@ -45,15 +45,21 @@ def parse(
 
     records = {}
     period_pattern = r"\d{1,2}:\d{2}-\d{1,2}:\d{2}"
+    nr_hours_pattern = r"\d{1,2}(\.\d{1,2})?"
+    hours_pattern = r"(({period_pattern}) | ({nr_hours_pattern}))".format(
+        period_pattern=period_pattern, nr_hours_pattern=nr_hours_pattern)
+    hours_pattern = r"{hours_pattern}(\s*,\s* {hours_pattern})*".format(
+        hours_pattern=hours_pattern)
     pattern = r"""
-        (?P<date>\d{8})
+        (?P<date>\d{{8}})
         (\s*:\s*
-        ((?P<periods>period_pattern(\s*,\s* period_pattern)*) |
-            (?P<nr_hours>\d{1,2}(\.\d{1,2})?))
-        (\s*:\s\s*
-        (?P<project>\S+))?)?
-    """
-    pattern = pattern.replace("period_pattern", period_pattern)
+            (?P<hours>{hours_pattern})
+            (\s*:\s\s*
+                (?P<project>\S+)
+            )?
+        )?
+    """.format(hours_pattern=hours_pattern)
+
     pattern = re.compile(pattern, re.VERBOSE)
     for line in stream:
         # Split at the comment sign. The stuff before the sign is relevant.
@@ -70,114 +76,40 @@ def parse(
                 match.end() + 1, line))
 
         assert(not match.group("date") is None)
-        # assert(match.group("nr_hours") or match.group("periods"))
-        assert(not (match.group("nr_hours") and match.group("periods")))
-
         date = match.group("date")
         date = datetime.date(int(date[0:4]), int(date[4:6]), int(date[6:8]))
 
         if not date in records:
             records[date] = []
-        if not match.group("nr_hours") and not match.group("periods"):
+
+        if not match.group("hours"):
             records[date].append(TrackTime.Record(date=date,
                 nr_hours=8.0))
-        elif match.group("nr_hours"):
-            records[date].append(TrackTime.Record(date=date,
-                nr_hours=float(match.group("nr_hours")),
-                project=match.group("project")))
         else:
-            nr_hours = 0
-            # "9:30-12:00, 12:30-17:00" -> ["9:30-12:00", "12:30-17:00"]
-            period_strings = [period_string.strip() for period_string in \
-                match.group("periods").split(",")]
-            for period_string in period_strings:
-                # "9:30-12:00" -> ["9:30", "12:00"]
-                time_strings = [time_string.strip() for time_string in \
-                    period_string.split("-")]
-                assert(len(time_strings) == 2)
+            hours_strings = match.group("hours").split(",")
+            nr_hours = 0.0
 
-                # "9:30" -> ["9", "30"]
-                tokens = time_strings[0].split(":")
+            for hours_string in hours_strings:
+                if hours_string.find("-") == -1:
+                    # Number or hours.
+                    nr_hours += float(hours_string)
+                else:
+                    # Hour period.
+                    # "9:30-12:00" -> ["9:30", "12:00"]
+                    time_strings = [time_string.strip() for time_string in \
+                        hours_string.split("-")]
+                    assert(len(time_strings) == 2)
 
-                start_time = date_time(date, time_strings[0].split(":"))
-                end_time = date_time(date, time_strings[1].split(":"))
-                assert(end_time >= start_time)
-                period = end_time - start_time
-                nr_hours += period.total_seconds() / 60.0 / 60.0
+                    # "9:30" -> ["9", "30"]
+                    tokens = time_strings[0].split(":")
+
+                    start_time = date_time(date, time_strings[0].split(":"))
+                    end_time = date_time(date, time_strings[1].split(":"))
+                    assert(end_time >= start_time)
+                    period = end_time - start_time
+                    nr_hours += period.total_seconds() / 60.0 / 60.0
 
             records[date].append(TrackTime.Record(date=date,
                 nr_hours=nr_hours, project=match.group("project")))
 
-
-
-
-      ### if record.find(":") == -1:
-      ###   # Number of hours not entered. Assume 8 hours.
-      ###   date = stringToDate(record)
-      ###   hours[date] = 8.0
-      ### else:
-      ###   dateString, period_strings = record.split(":", 1)
-      ###   date = stringToDate(dateString)
-      ###   hours[date] = []
-
-      ###   period_strings = map(lambda period: period.strip().split("-"),
-      ###         period_strings.split(","))
-
-      ###   nrHoursWorked = 0
-
-      ###   for period_string in period_strings:
-      ###     assert len(period_string) == 1 or len(period_string) == 2, period_string
-      ###     if len(period_string) == 1:
-      ###       # Allow a total number of hours to be input, instead of a period.
-      ###       nrHoursWorked = float(period_string[0])
-      ###     else:
-      ###       # Figure out the amount of time between end time and start time of
-      ###       # period worked.
-      ###       start_time = stringToTime(date, period_string[0])
-      ###       end_time = stringToTime(date, period_string[1])
-      ###       nrHoursWorked += (end_time - start_time).seconds / 3600.0
-
     return records
-
-
-###   def _parseHourInformation(self,
-###          stream):
-### 
-###     hours = {}
-### 
-###     for record in stream:
-###       record = record.split("#")[0].strip()
-### 
-###       if len(record) == 0:
-###         # Comment line.
-###         continue
-### 
-###       if record.find(":") == -1:
-###         # Number of hours not entered. Assume 8 hours.
-###         date = stringToDate(record)
-###         hours[date] = 8.0
-###       else:
-###         dateString, period_strings = record.split(":", 1)
-###         date = stringToDate(dateString)
-###         hours[date] = []
-### 
-###         period_strings = map(lambda period: period.strip().split("-"),
-###               period_strings.split(","))
-### 
-###         nrHoursWorked = 0
-### 
-###         for period_string in period_strings:
-###           assert len(period_string) == 1 or len(period_string) == 2, period_string
-###           if len(period_string) == 1:
-###             # Allow a total number of hours to be input, instead of a period.
-###             nrHoursWorked = float(period_string[0])
-###           else:
-###             # Figure out the amount of time between end time and start time of
-###             # period worked.
-###             start_time = stringToTime(date, period_string[0])
-###             end_time = stringToTime(date, period_string[1])
-###             nrHoursWorked += (end_time - start_time).seconds / 3600.0
-### 
-###         hours[date] = nrHoursWorked
-### 
-###     return hours
