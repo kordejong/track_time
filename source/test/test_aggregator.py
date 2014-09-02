@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import sys
 import unittest
@@ -6,7 +5,7 @@ sys.path.append("..")
 import track_time
 
 
-class AggregatorTests(unittest.TestCase):
+class TestAggregator(unittest.TestCase):
 
     def test001(self):
         """Test typical behavior"""

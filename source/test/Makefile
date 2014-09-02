@@ -1,9 +1,7 @@
 first: all
 
-all: run_unit_tests
-
-run_unit_tests:
-	python tests.py
+all:
+	python -m unittest discover -v
 
 clean:
 	rm -f *.pyc

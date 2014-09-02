@@ -7,7 +7,7 @@ sys.path.append("..")
 import track_time
 
 
-class ParserTests(unittest.TestCase):
+class TestParser(unittest.TestCase):
 
     def test001(self):
         """Parse empty file"""

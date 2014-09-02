@@ -6,12 +6,12 @@ track_time
 The track_time package contains code needed for tracking time periods worked
 on projects.
 
-.. automodule:: track_time.Record
+.. automodule:: track_time.record
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: track_time.Aggregator
+.. automodule:: track_time.aggregator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -19,9 +19,9 @@ on projects.
 """
 import datetime
 import re
-import track_time.Record
-from track_time.Aggregator import Aggregator
-from track_time.Record import Record
+import track_time.record
+from track_time.aggregator import Aggregator
+from track_time.record import Record
 
 
 def parse(
