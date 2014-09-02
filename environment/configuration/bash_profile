@@ -1,0 +1,2 @@
+#vim:syntax=bash
+export PATH=$PATH:$TRACKTIME/source

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-*********
-TrackTime
-*********
-The TrackTime package contains code needed for tracking time periods worked
+**********
+track_time
+**********
+The track_time package contains code needed for tracking time periods worked
 on projects.
 
-.. automodule:: TrackTime.Record
+.. automodule:: track_time.Record
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: TrackTime.Aggregator
+.. automodule:: track_time.Aggregator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -19,9 +19,9 @@ on projects.
 """
 import datetime
 import re
-import TrackTime.Record
-from TrackTime.Aggregator import Aggregator
-from TrackTime.Record import Record
+import track_time.Record
+from track_time.Aggregator import Aggregator
+from track_time.Record import Record
 
 
 def parse(
@@ -30,7 +30,7 @@ def parse(
     Parse `stream` for records with information about hours spent working,
     sick, holidaying, or vacationing per day and project.
 
-    Return list of TrackTime.Record instances.
+    Return list of track_time.Record instances.
     """
     def date_time(
             date,
@@ -83,7 +83,7 @@ def parse(
             records[date] = []
 
         if not match.group("hours"):
-            records[date].append(TrackTime.Record(date=date,
+            records[date].append(track_time.Record(date=date,
                 nr_hours=8.0))
         else:
             hours_strings = match.group("hours").split(",")
@@ -109,7 +109,7 @@ def parse(
                     period = end_time - start_time
                     nr_hours += period.total_seconds() / 60.0 / 60.0
 
-            records[date].append(TrackTime.Record(date=date,
+            records[date].append(track_time.Record(date=date,
                 nr_hours=nr_hours, project=match.group("project")))
 
     return records

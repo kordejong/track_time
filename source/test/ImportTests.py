@@ -3,7 +3,7 @@ import inspect
 import sys
 import unittest
 sys.path.append("..")
-import TrackTime
+import track_time
 
 
 class ImportTests(unittest.TestCase):
@@ -35,8 +35,8 @@ class ImportTests(unittest.TestCase):
     ###   self.assertTrue("TdsConnection" in module.__dict__)
 
     def testImportTrackTime(self):
-        module = __import__("TrackTime")
-        module = sys.modules["TrackTime"]
+        module = __import__("track_time")
+        module = sys.modules["track_time"]
         self.assertTrue(inspect.ismodule(module))
         self._testFunctionsInModule(module, [
             "parse"
