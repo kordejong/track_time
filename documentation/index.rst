@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   Track Time <TrackTime>
+   Track Time <track_time>
 
 
 Indices and tables

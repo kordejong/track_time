@@ -4,7 +4,7 @@ import StringIO
 import sys
 import unittest
 sys.path.append("..")
-import TrackTime
+import track_time
 
 
 class ParserTests(unittest.TestCase):
@@ -12,7 +12,7 @@ class ParserTests(unittest.TestCase):
     def test001(self):
         """Parse empty file"""
         stream = StringIO.StringIO()
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 0)
 
     def test002(self):
@@ -20,7 +20,7 @@ class ParserTests(unittest.TestCase):
         stream = StringIO.StringIO(
           "# This is a comment\n"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 0)
 
     def test003(self):
@@ -28,7 +28,7 @@ class ParserTests(unittest.TestCase):
         stream = StringIO.StringIO(
             "\n"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 0)
 
     def test004(self):
@@ -37,7 +37,7 @@ class ParserTests(unittest.TestCase):
             " \n"
             "\t\n"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 0)
 
     def test010(self):
@@ -46,7 +46,7 @@ class ParserTests(unittest.TestCase):
             "20111202\n"
             "20111205  # Comment..."
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2011, 12, 2)
@@ -69,7 +69,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 8\n"
             "20111205: 4.5  # Comment..."
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2011, 12, 2)
@@ -91,7 +91,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 4.5\n"
             "20111202: 3, 4"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
         date = datetime.date(2011, 12, 2)
 
@@ -118,7 +118,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 8:30-12:00, 12:30-17:00  # Comment...\n"
             "20111205: 10:00-12:15, 12:45-17:45"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2011, 12, 2)
@@ -141,7 +141,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 4.5\n"
             "20111205: 10:00-12:15, 12:45-17:45  # Comment..."
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2011, 12, 2)
@@ -163,7 +163,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 4.5  # Comment...\n"
             "20111202: 10:00-12:15"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
         date = datetime.date(2011, 12, 2)
@@ -183,7 +183,7 @@ class ParserTests(unittest.TestCase):
         stream = StringIO.StringIO(
             "20111202: 10:00-12:15, 4.5"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
         date = datetime.date(2011, 12, 2)
@@ -201,7 +201,7 @@ class ParserTests(unittest.TestCase):
             "20121030: 5: project_y # Comment...\n"
             "20121031: 8: project_z"
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2012, 10, 30)
@@ -231,7 +231,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 8:30-12:00, 12:30-17:00: project_a\n"
             "20111205: 10:00-12:15, 12:45-17:45: project_b # Comment..."
         )
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
         date = datetime.date(2011, 12, 2)
@@ -254,7 +254,7 @@ class ParserTests(unittest.TestCase):
             "20111202: 8:30-12:00, 12:30-17:00: prøject_ø # Cømment...\n"
         )
 
-        records = TrackTime.parse(stream)
+        records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
         date = datetime.date(2011, 12, 2)
@@ -278,7 +278,7 @@ class ParserTests(unittest.TestCase):
                 stream = StringIO.StringIO(
                   line
                 )
-                records = TrackTime.parse(stream)
+                records = track_time.parse(stream)
             exception = contextManager.exception
             self.assert_(str(exception).find("Parse error") != -1)
             # self.assertEqual(str(exception), "Parse error: {}".format(line))

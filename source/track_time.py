@@ -18,7 +18,7 @@ Options:
 """
 import docopt
 import sys
-import TrackTime
+import track_time
 
 
 if __name__ == "__main__":
