@@ -6,7 +6,7 @@ sys.path.append("..")
 import track_time
 
 
-class ImportTests(unittest.TestCase):
+class TestImport(unittest.TestCase):
 
     def _testFunctionsInModule(self,
             module,
