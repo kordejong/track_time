@@ -1,21 +1,20 @@
-# -*- coding: utf-8 -*-
 import datetime
 import sys
 import unittest
 sys.path.append("..")
-import TrackTime
+import track_time
 
 
-class AggregatorTests(unittest.TestCase):
+class TestAggregator(unittest.TestCase):
 
     def test001(self):
         """Test typical behavior"""
-        hours_worked = TrackTime.parse(file("Work-001.txt"))
-        hours_sick = TrackTime.parse(file("Sick-001.txt"))
-        hours_vacation = TrackTime.parse(file("Vacation-001.txt"))
-        hours_holiday = TrackTime.parse(file("Holiday-001.txt"))
+        hours_worked = track_time.parse(file("Work-001.txt"))
+        hours_sick = track_time.parse(file("Sick-001.txt"))
+        hours_vacation = track_time.parse(file("Vacation-001.txt"))
+        hours_holiday = track_time.parse(file("Holiday-001.txt"))
 
-        aggregator = TrackTime.Aggregator(16, 8, hours_worked, hours_sick,
+        aggregator = track_time.Aggregator(16, 8, hours_worked, hours_sick,
             hours_vacation, hours_holiday)
 
         hours_per_day = aggregator.hours_per_day
