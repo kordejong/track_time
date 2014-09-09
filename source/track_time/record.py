@@ -9,14 +9,14 @@ import datetime
 class Record(object):
     """
     Record keeps track of information on one line from an in input stream. An
-    input stream contains the information of hours spent working per day per
-    project.
+    input stream contains the information of hours spent on work-related
+    things.
     """
 
     def __init__(self,
             date,
             nr_hours,
-            project=None):
+            project=[]):
         """
         Create a record instance.
         """
@@ -25,11 +25,14 @@ class Record(object):
         assert(nr_hours <= 24.0)
         self.date = date
         self.nr_hours = nr_hours
-        self.project=project
+        self.project = project
 
     # def __str__(self):
     #   return "{0}: {1}".format(self.date, self.nr_hours)
 
+    def project_string(self):
+        return "/".join(self.project)
+
     def __repr__(self):
         return "Record(date={}, nr_hours={}, project={})".format(self.date,
-            self.nr_hours, self.project)
+            self.nr_hours, self.project_string())
