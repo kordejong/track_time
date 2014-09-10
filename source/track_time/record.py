@@ -25,7 +25,7 @@ class Record(object):
         assert(nr_hours <= 24.0)
         self.date = date
         self.nr_hours = nr_hours
-        self.project = project
+        self.project = project if len(project) > 0 else [""]
 
     # def __str__(self):
     #   return "{0}: {1}".format(self.date, self.nr_hours)
@@ -35,6 +35,7 @@ class Record(object):
 
     def __iadd__(self,
             other):
+        # r1 += r2
         self.date = None
         self.nr_hours += other.nr_hours
         return self
