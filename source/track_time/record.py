@@ -33,6 +33,12 @@ class Record(object):
     def project_string(self):
         return "/".join(self.project)
 
+    def __iadd__(self,
+            other):
+        self.date = None
+        self.nr_hours += other.nr_hours
+        return self
+
     def __repr__(self):
         return "Record(date={}, nr_hours={}, project={})".format(self.date,
             self.nr_hours, self.project_string())

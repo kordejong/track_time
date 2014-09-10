@@ -24,12 +24,25 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(len(selected_records), 4)
 
     def test_merge_records_by_project(self):
-        # TODO
-        pass
+        records = track_time.parse(file("sub_projects-001.txt"))
+
+        merged_records = track_time.merge_records_by_project(records)
+        self.assertEqual(len(merged_records), 14)
 
     def test_merge_child_projects_with_parents(self):
-        # TODO
-        pass
+        records = track_time.parse(file("sub_projects-001.txt"))
+
+        merged_records = track_time.merge_child_projects_with_parents(records)
+        self.assertEqual(len(merged_records), 2)
+
+        self.assertEqual(merged_records[0].date, None)
+        self.assertEqual(merged_records[0].nr_hours, 48)
+        self.assertEqual(merged_records[0].project, ["my_project_a"])
+
+        self.assertEqual(merged_records[0].date, None)
+        self.assertEqual(merged_records[0].nr_hours, 48)
+        self.assertEqual(merged_records[0].project, ["my_project_b"])
+
 
 if __name__ == "__main__":
     unittest.main()
