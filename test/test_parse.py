@@ -94,19 +94,15 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8.0)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        date = datetime.date(2011, 12, 5)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 5))
         self.assertEqual(record.nr_hours, 8.0)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
     def test011(self):
         """Parse <date>: <number of hours>"""
@@ -117,19 +113,15 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8.0)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        date = datetime.date(2011, 12, 5)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 5))
         self.assertEqual(record.nr_hours, 4.5)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
         stream = StringIO.StringIO(
             "20111202: 8  # Comment...\n"
@@ -137,25 +129,22 @@ class TestParse(unittest.TestCase):
             "20111202: 3, 4"
         )
         records = track_time.parse(stream)
-        self.assertEqual(len(records), 1)
-        date = datetime.date(2011, 12, 2)
+        self.assertEqual(len(records), 3)
 
-        self.assertEqual(len(records[date]), 3)
-
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8.0)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        record = records[date][1]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 4.5)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        record = records[date][2]
+        record = records[2]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 7.0)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
     def test021(self):
         """Parse <date>: <period>+"""
@@ -166,19 +155,15 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        date = datetime.date(2011, 12, 5)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 5))
         self.assertEqual(record.nr_hours, 7.25)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
     def test022(self):
         """Parse mix of <date>: <number of hours> | <period>+"""
@@ -189,19 +174,15 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 4.5)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        date = datetime.date(2011, 12, 5)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 5))
         self.assertEqual(record.nr_hours, 7.25)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
 
         stream = StringIO.StringIO(
@@ -209,20 +190,17 @@ class TestParse(unittest.TestCase):
             "20111202: 10:00-12:15"
         )
         records = track_time.parse(stream)
-        self.assertEqual(len(records), 1)
+        self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 2)
-
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 4.5)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
-        record = records[date][1]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 2.25)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
 
         stream = StringIO.StringIO(
@@ -231,13 +209,10 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 6.75)
-        self.assertEqual(len(record.project), 0)
+        self.assertEqual(record.project, [""])
 
     def test031(self):
         """Parse <date>: <number of hours>: <project>"""
@@ -247,27 +222,21 @@ class TestParse(unittest.TestCase):
             "20121031: 8: project_z"
         )
         records = track_time.parse(stream)
-        self.assertEqual(len(records), 2)
+        self.assertEqual(len(records), 3)
 
-        date = datetime.date(2012, 10, 30)
-        self.assertEqual(len(records[date]), 2)
-
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2012, 10, 30))
         self.assertEqual(record.nr_hours, 3.0)
         self.assertEqual(len(record.project), 1)
         self.assertEqual(record.project[0], "project_x")
 
-        record = records[date][1]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2012, 10, 30))
         self.assertEqual(record.nr_hours, 5.0)
         self.assertEqual(len(record.project), 1)
         self.assertEqual(record.project[0], "project_y")
 
-        date = datetime.date(2012, 10, 31)
-        self.assertEqual(len(records[date]), 1)
-
-        record = records[date][0]
+        record = records[2]
         self.assertEqual(record.date, datetime.date(2012, 10, 31))
         self.assertEqual(record.nr_hours, 8.0)
         self.assertEqual(len(record.project), 1)
@@ -282,17 +251,13 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 2)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8)
         self.assertEqual(len(record.project), 1)
         self.assertEqual(record.project[0], "project_a")
 
-        date = datetime.date(2011, 12, 5)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[1]
         self.assertEqual(record.date, datetime.date(2011, 12, 5))
         self.assertEqual(record.nr_hours, 7.25)
         self.assertEqual(len(record.project), 1)
@@ -307,9 +272,7 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(record.date, datetime.date(2011, 12, 2))
         self.assertEqual(record.nr_hours, 8)
         self.assertEqual(len(record.project), 1)
@@ -324,9 +287,7 @@ class TestParse(unittest.TestCase):
         records = track_time.parse(stream)
         self.assertEqual(len(records), 1)
 
-        date = datetime.date(2011, 12, 2)
-        self.assertEqual(len(records[date]), 1)
-        record = records[date][0]
+        record = records[0]
         self.assertEqual(len(record.project), 6)
         self.assertEqual(record.project[0], "a")
         self.assertEqual(record.project[1], "b")

@@ -39,9 +39,9 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(merged_records[0].nr_hours, 48)
         self.assertEqual(merged_records[0].project, ["my_project_a"])
 
-        self.assertEqual(merged_records[0].date, None)
-        self.assertEqual(merged_records[0].nr_hours, 48)
-        self.assertEqual(merged_records[0].project, ["my_project_b"])
+        self.assertEqual(merged_records[1].date, None)
+        self.assertEqual(merged_records[1].nr_hours, 48)
+        self.assertEqual(merged_records[1].project, ["my_project_b"])
 
 
 if __name__ == "__main__":

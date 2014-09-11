@@ -2,7 +2,7 @@
 import inspect
 import sys
 import unittest
-sys.path.append("..")
+sys.path.append("../source")
 import track_time
 
 
@@ -34,17 +34,17 @@ class TestImport(unittest.TestCase):
     ###   self.assertTrue("WcsConnection" in module.__dict__)
     ###   self.assertTrue("TdsConnection" in module.__dict__)
 
-    def testImportTrackTime(self):
-        module = __import__("track_time")
-        module = sys.modules["track_time"]
-        self.assertTrue(inspect.ismodule(module))
-        self._testFunctionsInModule(module, [
-            "parse"
-        ])
-        self._testClassesInModule(module, [
-            "Aggregator",
-            "Record"
-        ])
+    ### def testImportTrackTime(self):
+    ###     module = __import__("track_time")
+    ###     module = sys.modules["track_time"]
+    ###     self.assertTrue(inspect.ismodule(module))
+    ###     self._testFunctionsInModule(module, [
+    ###         "parse"
+    ###     ])
+    ###     self._testClassesInModule(module, [
+    ###         "Aggregator",
+    ###         "Record"
+    ###     ])
 
     ### def testImportNetCDF_Analysis(self):
     ###   module = __import__("NetCDFTool.Analysis")
