@@ -30,6 +30,10 @@ class Record(object):
     # def __str__(self):
     #   return "{0}: {1}".format(self.date, self.nr_hours)
 
+    @property
+    def nr_days(self):
+        return self.nr_hours / 8.0
+
     def project_string(self):
         return "/".join(self.project)
 

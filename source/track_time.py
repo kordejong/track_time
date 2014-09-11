@@ -17,6 +17,7 @@ Options:
 import docopt
 import sys
 import track_time
+import prettytable
 
 
 @track_time.checked_call
@@ -32,10 +33,20 @@ def query_project(
         merged_records = track_time.merge_child_projects_with_parents(
             merged_records)
 
+    table = prettytable.PrettyTable(["Project", "Hours", "Days"])
+    table.align["Project"] = "l"
+    table.align["Hours"] = "r"
+    table.align["Days"] = "r"
+    table.sortby="Project"
+
     for record in merged_records:
-        sys.stdout.write("{project}: {nr_hours}\n".format(
-            project=record.project_string(),
-            nr_hours=record.nr_hours))
+        table.add_row([
+            record.project_string(),
+            "{:.2f}".format(record.nr_hours),
+            "{:.2f}".format(record.nr_days)
+        ])
+
+    sys.stdout.write("{}\n".format(table))
 
 
 if __name__ == "__main__":

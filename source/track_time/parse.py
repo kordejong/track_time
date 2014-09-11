@@ -54,7 +54,9 @@ def parse(
     """.format(hours_pattern=hours_pattern)
 
     pattern = re.compile(pattern, re.VERBOSE)
+    line_nr = 0
     for line in stream:
+        line_nr += 1
         # Split at the comment sign. The stuff before the sign is relevant.
         line = line.split("#")[0].strip()
         if len(line) == 0:
@@ -65,8 +67,8 @@ def parse(
         if match is None:
             raise ValueError("Parse error: {}".format(line))
         elif match.end() != len(line):
-            raise ValueError("Parse error at character {}: {}".format(
-                match.end() + 1, line))
+            raise ValueError("Parse error at {}:{}: {}".format(
+                line_nr, match.end() + 1, line))
 
         assert(not match.group("date") is None)
         date = match.group("date")
