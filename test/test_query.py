@@ -29,6 +29,16 @@ class TestQuery(unittest.TestCase):
         merged_records = track_time.merge_records_by_project(records)
         self.assertEqual(len(merged_records), 14)
 
+    def test_merge_records_by_category(self):
+        records = track_time.parse(file("categories-001.txt"))
+
+        merged_records = track_time.merge_records_by_category(records)
+        self.assertEqual(len(merged_records), 3)
+
+        self.assertEqual(merged_records[0].project, ["project"])
+        self.assertEqual(merged_records[1].project, ["vacation"])
+        self.assertEqual(merged_records[2].project, ["sick"])
+
     def test_merge_child_projects_with_parents(self):
         records = track_time.parse(file("sub_projects-001.txt"))
 

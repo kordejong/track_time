@@ -1,0 +1,8 @@
+20140101: 8: my_project
+20140102: 4: my_project
+20140102: 4: sick
+20140103: 8: vacation
+20140104: 8: vacation
+20140105: 3: sick
+20140105: 5: my_project
+
