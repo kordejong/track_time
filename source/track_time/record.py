@@ -20,9 +20,9 @@ class Record(object):
         """
         Create a record instance.
         """
-        assert(isinstance(date, datetime.date))
-        assert(isinstance(nr_hours, float))
-        assert(nr_hours <= 24.0)
+        assert date is None or isinstance(date, datetime.date)
+        assert isinstance(nr_hours, float)
+        assert nr_hours <= 24.0
         self.date = date
         self.nr_hours = nr_hours
         self.project = project if len(project) > 0 else [""]

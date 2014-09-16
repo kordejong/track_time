@@ -4,14 +4,17 @@
 Usage:
     track_time.py query project [--project=<pattern>] [--no_aggregate]
         <timesheet>
+    track_time.py query vacation <vacation> <timesheet>
 
 Arguments:
-    timesheet            Name of timesheet to use
+    contract             Number of hours to work per week.
+    timesheet            Name of timesheet.
+    vacation             Number of hours vacation per year.
 
 Options:
     --help               Show this screen.
     --no_aggregate       Don't aggregate per project.
-    --project=<pattern>  Name of project [default: *]
+    --project=<pattern>  Name of project [default: *].
     --version            Show version.
 """
 import docopt
@@ -49,6 +52,55 @@ def query_project(
     sys.stdout.write("{}\n".format(table))
 
 
+@track_time.checked_call
+def query_vacation(
+        timesheet_pathname,
+        nr_hours_vacation):
+    records = track_time.parse(file(timesheet_pathname, "r"))
+    merged_records = track_time.merge_records_by_category(records)
+
+    record_by_category = {record.project_string(): record for record in
+        merged_records}
+    vacation_record = record_by_category["vacation"]
+    nr_hours_spent = vacation_record.nr_hours
+    nr_hours_left = nr_hours_vacation - nr_hours_spent
+    nr_days_left = nr_hours_left / 8.0
+
+    table = prettytable.PrettyTable(["Available", "Spent", "Balance (h)",
+        "Balance (d)"])
+    table.align = "r"
+
+    table.add_row([
+        "{:.2f}".format(nr_hours_vacation),
+        "{:.2f}".format(nr_hours_spent),
+        "{:.2f}".format(nr_hours_left),
+        "{:.2f}".format(nr_days_left)
+    ])
+
+    sys.stdout.write("{}\n".format(table))
+
+
+
+    ### table = prettytable.PrettyTable(["Worked", "Vacation", "Sick",
+    ###     "Hours left", "Days left"])
+    ### table.align = "r"
+
+    ### nr_hours_to_work = 
+
+    ### nr_hours_left = 0.0
+    ### nr_days_left = 0.0
+
+    ### table.add_row([
+    ###     "{:.2f}".format(record_by_category["project"].nr_hours),
+    ###     "{:.2f}".format(record_by_category["vacation"].nr_hours),
+    ###     "{:.2f}".format(record_by_category["sick"].nr_hours),
+    ###     "{:.2f}".format(nr_hours_left),
+    ###     "{:.2f}".format(nr_days_left)
+    ### ])
+
+    ### sys.stdout.write("{}\n".format(table))
+
+
 if __name__ == "__main__":
     arguments = docopt.docopt(__doc__, version="Track Time 0.0.1")
 
@@ -57,9 +109,13 @@ if __name__ == "__main__":
             timesheet_pathname = arguments["<timesheet>"]
             project_pattern = arguments["--project"]
             aggregate = not arguments["--no_aggregate"]
-
             status = query_project(timesheet_pathname, project_pattern,
                 aggregate)
+        elif arguments["vacation"]:
+            # nr_hours_to_work = int(arguments["<contract>"])
+            timesheet_pathname = arguments["<timesheet>"]
+            nr_hours_vacation = int(arguments["<vacation>"])
+            status = query_vacation(timesheet_pathname, nr_hours_vacation)
 
     sys.exit(status)
 
