@@ -5,6 +5,7 @@ Usage:
     track_time.py query project [--project=<pattern>] [--no_aggregate]
         <timesheet>
     track_time.py query vacation <vacation> <timesheet>
+    track_time.py query hours [--period=<weeks>] <contract> <timesheet>
 
 Arguments:
     contract             Number of hours to work per week.
@@ -14,9 +15,11 @@ Arguments:
 Options:
     --help               Show this screen.
     --no_aggregate       Don't aggregate per project.
+    --period=<weeks>     Number of weeks to report [default: 3].
     --project=<pattern>  Name of project [default: *].
     --version            Show version.
 """
+import datetime
 import docopt
 import sys
 import track_time
@@ -29,7 +32,8 @@ def query_project(
         project_pattern,
         aggregate):
     records = track_time.parse(file(timesheet_pathname, "r"))
-    selected_records = track_time.grep_projects(records, project_pattern)
+    selected_records = track_time.filter_projects_by_name(records,
+        project_pattern)
     merged_records = track_time.merge_records_by_project(selected_records)
 
     if aggregate:
@@ -80,25 +84,31 @@ def query_vacation(
     sys.stdout.write("{}\n".format(table))
 
 
+@track_time.checked_call
+def query_hours(
+        timesheet_pathname,
+        nr_hours_to_work,
+        nr_weeks_to_report):
+    records = track_time.parse(file(timesheet_pathname, "r"))
+    to_time_point = datetime.date.today()
+    from_time_point = to_time_point - datetime.timedelta(
+        days=nr_weeks_to_report * 7)
+    selected_records = track_time.filter_projects_by_date(records,
+        from_time_point, to_time_point)
+    merged_records = track_time.merge_records_by_date(selected_records)
+    merged_records = sorted(merged_records, key=lambda record: record.date)
 
-    ### table = prettytable.PrettyTable(["Worked", "Vacation", "Sick",
-    ###     "Hours left", "Days left"])
-    ### table.align = "r"
+    table = prettytable.PrettyTable(["Date", "Worked", "Balance"])
+    table.align = "r"
 
-    ### nr_hours_to_work = 
+    for record in merged_records:
+        table.add_row([
+            "{} {}".format(record.date.strftime("%a"), record.date),
+            "{:.2f}".format(record.nr_hours),
+            "{:+.2f}".format(record.nr_hours - 8),
+        ])
 
-    ### nr_hours_left = 0.0
-    ### nr_days_left = 0.0
-
-    ### table.add_row([
-    ###     "{:.2f}".format(record_by_category["project"].nr_hours),
-    ###     "{:.2f}".format(record_by_category["vacation"].nr_hours),
-    ###     "{:.2f}".format(record_by_category["sick"].nr_hours),
-    ###     "{:.2f}".format(nr_hours_left),
-    ###     "{:.2f}".format(nr_days_left)
-    ### ])
-
-    ### sys.stdout.write("{}\n".format(table))
+    sys.stdout.write("{}\n".format(table))
 
 
 if __name__ == "__main__":
@@ -112,41 +122,14 @@ if __name__ == "__main__":
             status = query_project(timesheet_pathname, project_pattern,
                 aggregate)
         elif arguments["vacation"]:
-            # nr_hours_to_work = int(arguments["<contract>"])
             timesheet_pathname = arguments["<timesheet>"]
             nr_hours_vacation = int(arguments["<vacation>"])
             status = query_vacation(timesheet_pathname, nr_hours_vacation)
+        elif arguments["hours"]:
+            nr_hours_to_work = int(arguments["<contract>"])
+            timesheet_pathname = arguments["<timesheet>"]
+            nr_weeks_to_report = int(arguments["--period"])
+            status = query_hours(timesheet_pathname, nr_hours_to_work,
+                nr_weeks_to_report)
 
     sys.exit(status)
-
-
-### """Track time.
-### 
-### Usage:
-###   track_time.py <contract_hours> <vacation_hours> <worked> <vacation> <holiday> <sick>
-###   track_time.py (-h | --help)
-###   track_time.py --version
-### 
-### Options:
-###   -h --help       Show this screen.
-###   --version       Show version.
-###   contract_hours  Contract hours, per week.
-###   vacation_hours  Hours vaction, per year.
-###   worked          Name of file containing hours worked.
-###   vacation        Name of file containing vaction hours.
-###   holiday         Name of file containing holiday hours.
-###   sick            Name of file containing hours sick.
-### """
-
-### if __name__ == "__main__":
-###     arguments = docopt.docopt(__doc__, version="Track Time 0.2")
-###     contract_hours = int(arguments["<contract_hours>"])
-###     vacation_hours = int(arguments["<vacation_hours>"])
-###     worked = TrackTime.parse(file(arguments["<worked>"]))
-###     vacation = TrackTime.parse(file(arguments["<vacation>"]))
-###     holiday = TrackTime.parse(file(arguments["<holiday>"]))
-###     sick = TrackTime.parse(file(arguments["<sick>"]))
-###     aggregator = TrackTime.Aggregator(contract_hours, vacation_hours, worked,
-###         sick, vacation, holiday)
-###     aggregator.print_report(sys.stdout)
-###     sys.exit(0)

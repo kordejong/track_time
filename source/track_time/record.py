@@ -40,7 +40,8 @@ class Record(object):
     def __iadd__(self,
             other):
         # r1 += r2
-        self.date = None
+        if self.date != other.date:
+            self.date = None
         self.nr_hours += other.nr_hours
         return self
 

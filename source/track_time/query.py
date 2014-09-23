@@ -2,7 +2,7 @@ import fnmatch
 import track_time.record
 
 
-def grep_projects(
+def filter_projects_by_name(
         timesheet_records,
         project_name_pattern="*"):
     result = []
@@ -11,6 +11,21 @@ def grep_projects(
         # Select those records for which the project's string representation
         # matches the name pattern passed in, according to fnmatch.
         if fnmatch.fnmatch(record.project_string(), project_name_pattern):
+            result.append(record)
+
+    return result
+
+
+def filter_projects_by_date(
+        timesheet_records,
+        from_time_point,
+        to_time_point):
+    result = []
+
+    for record in timesheet_records:
+        # Select those records for which the date lies within the time period
+        # [from_time_point, to_time_point].
+        if from_time_point <= record.date <= to_time_point:
             result.append(record)
 
     return result
@@ -58,6 +73,22 @@ def merge_records_by_project(
             records_by_project[project_name])
 
     return records_by_project.values()
+
+
+def merge_records_by_date(
+        timesheet_records):
+    # Given a list of timesheet records, merge those records that are
+    # associated with the same date.
+
+    # Create a dict with date as the key and the records as value.
+    records_by_date = {}
+    for record in timesheet_records:
+        records_by_date.setdefault(record.date, []).append(record)
+
+    for date in records_by_date:
+        records_by_date[date] = merge_records(records_by_date[date])
+
+    return records_by_date.values()
 
 
 def merge_child_projects_with_parents(
