@@ -90,7 +90,7 @@ def query_hours(
         nr_hours_to_work,
         nr_weeks_to_report):
     records = track_time.parse(file(timesheet_pathname, "r"))
-    to_time_point = datetime.date.today()
+    to_time_point = track_time.last_day_of_week(datetime.date.today())
     from_time_point = to_time_point - datetime.timedelta(
         days=nr_weeks_to_report * 7)
     selected_records = track_time.filter_projects_by_date(records,
@@ -98,14 +98,29 @@ def query_hours(
     merged_records = track_time.merge_records_by_date(selected_records)
     merged_records = sorted(merged_records, key=lambda record: record.date)
 
-    table = prettytable.PrettyTable(["Date", "Worked", "Balance"])
+    # Hours per day (work + sick + holiday + vacation).
+    table = prettytable.PrettyTable(["Date", "Hours"])
     table.align = "r"
 
     for record in merged_records:
         table.add_row([
             "{} {}".format(record.date.strftime("%a"), record.date),
-            "{:.2f}".format(record.nr_hours),
-            "{:+.2f}".format(record.nr_hours - 8),
+            "{:.2f}".format(record.nr_hours)
+        ])
+
+    sys.stdout.write("{}\n".format(table))
+
+    merged_records = track_time.merge_records_by_week(selected_records)
+    merged_records = sorted(merged_records, key=lambda record: record.date)
+
+    # Weekly balance.
+    table = prettytable.PrettyTable(["Week", "Balance"])
+    table.align = "r"
+
+    for record in merged_records:
+        table.add_row([
+            "{} {}".format(record.date.strftime("%a"), record.date),
+            "{:+.2f}".format(record.nr_hours - nr_hours_to_work)
         ])
 
     sys.stdout.write("{}\n".format(table))
