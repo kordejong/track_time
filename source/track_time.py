@@ -125,6 +125,18 @@ def query_hours(
 
     sys.stdout.write("{}\n".format(table))
 
+    ### # Overall balance of the period.
+    ### table = prettytable.PrettyTable(["Period", "Balance"])
+    ### table.align = "r"
+
+    ### for record in merged_records:
+    ###     table.add_row([
+    ###         "{} {}".format(record.date.strftime("%a"), record.date),
+    ###         "{:+.2f}".format(record.nr_hours - nr_hours_to_work)
+    ###     ])
+
+    ### sys.stdout.write("{}\n".format(table))
+
 
 if __name__ == "__main__":
     arguments = docopt.docopt(__doc__, version="Track Time 0.0.1")

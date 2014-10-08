@@ -1,3 +1,4 @@
+import copy
 import datetime
 import fnmatch
 import track_time.record
@@ -74,7 +75,11 @@ def merge_records(
     if len(timesheet_records) == 0:
         result = track_time.record.Record(None, 0.0, project)
     else:
-        result = timesheet_records[0]
+        # Copy the first record. Otherwise we'll be changing the record
+        # which may be referenced from other collections. Merge should
+        # create a new instance.
+        result = copy.deepcopy(timesheet_records[0])
+
         for record in timesheet_records[1:]:
             result += record
 
@@ -129,19 +134,19 @@ def merge_records_by_week(
     # associated with the same week.
 
     # Create a dict with week as the key and the records as value.
-    records_by_date = {}
+    records_by_week = {}
     for record in timesheet_records:
-        records_by_date.setdefault(
+        records_by_week.setdefault(
             record.date.isocalendar()[1], []).append(record)
 
     # Merge the records per week and use the date of the first day (Monday).
-    for date in records_by_date:
-        iso_calendar = records_by_date[date][0].date.isocalendar()
-        records_by_date[date] = merge_records(records_by_date[date])
-        records_by_date[date].date = iso_to_gregorian(iso_calendar[0],
+    for week_nr in records_by_week:
+        iso_calendar = records_by_week[week_nr][0].date.isocalendar()
+        records_by_week[week_nr] = merge_records(records_by_week[week_nr])
+        records_by_week[week_nr].date = iso_to_gregorian(iso_calendar[0],
             iso_calendar[1], 1)
 
-    return records_by_date.values()
+    return records_by_week.values()
 
 
 def merge_child_projects_with_parents(

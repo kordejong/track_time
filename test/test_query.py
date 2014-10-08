@@ -42,6 +42,23 @@ class TestQuery(unittest.TestCase):
         merged_records = track_time.merge_records_by_date(records)
         self.assertEqual(len(merged_records), 16)
 
+    def test_merge_records_by_week(self):
+        records = track_time.parse(file("sub_projects-001.txt"))
+
+        merged_records = track_time.merge_records_by_week(records)
+        self.assertEqual(len(merged_records), 5)
+        self.assertEqual(merged_records[0].date, datetime.date(2013, 12, 30))
+        self.assertEqual(merged_records[1].date, datetime.date(2014, 1, 6))
+        self.assertEqual(merged_records[2].date, datetime.date(2014, 1, 27))
+        self.assertEqual(merged_records[3].date, datetime.date(2014, 2, 3))
+        self.assertEqual(merged_records[4].date, datetime.date(2014, 2, 10))
+
+        self.assertEqual(merged_records[0].nr_hours, 30)
+        self.assertEqual(merged_records[1].nr_hours, 18)
+        self.assertEqual(merged_records[2].nr_hours, 13)
+        self.assertEqual(merged_records[3].nr_hours, 23)
+        self.assertEqual(merged_records[4].nr_hours, 12)
+
     def test_merge_records_by_category(self):
         records = track_time.parse(file("categories-001.txt"))
 
