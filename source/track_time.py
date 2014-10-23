@@ -4,7 +4,7 @@
 Usage:
     track_time.py query project [--project=<pattern>] [--no_aggregate]
         <timesheet>
-    track_time.py query vacation <vacation> <timesheet>
+    track_time.py query vacation <contract> <vacation> <timesheet>
     track_time.py query hours [--period=<weeks>] <contract> <timesheet>
 
 Arguments:
@@ -24,6 +24,14 @@ import docopt
 import sys
 import track_time
 import prettytable
+
+
+def write_table(
+        table,
+        header=None):
+    # if header is not None:
+    #     sys.stdout.write("{}\n".format(header))
+    sys.stdout.write("{}\n".format(table))
 
 
 @track_time.checked_call
@@ -53,16 +61,18 @@ def query_project(
             "{:.2f}".format(record.nr_days)
         ])
 
-    sys.stdout.write("{}\n".format(table))
+    write_table(table)
 
 
 @track_time.checked_call
 def query_vacation(
         timesheet_pathname,
-        nr_hours_vacation):
+        nr_hours_to_work,  # Per week.
+        nr_hours_vacation):  # Per year.
     records = track_time.parse(file(timesheet_pathname, "r"))
     merged_records = track_time.merge_records_by_category(records)
 
+    # Vacation -----------------------------------------------------------------
     record_by_category = {record.project_string(): record for record in
         merged_records}
     vacation_record = record_by_category["vacation"]
@@ -81,7 +91,53 @@ def query_vacation(
         "{:.2f}".format(nr_days_left)
     ])
 
-    sys.stdout.write("{}\n".format(table))
+    write_table(table, header="vacation")
+
+
+    # Overtime -----------------------------------------------------------------
+    # Number of hours that should have been spent on work, by the end of the
+    # week.
+    to_time_point = track_time.last_day_of_week(datetime.date.today())
+    week_number = to_time_point.isocalendar()[1]
+    nr_hours_to_work *= week_number
+
+    # Number of hours that have been spent on work, in whatever way.
+    nr_hours_spent_on_work = sum([record.nr_hours for record in merged_records])
+
+    nr_hours_overtime = nr_hours_spent_on_work - nr_hours_to_work
+    nr_days_overtime = nr_hours_overtime / 8.0
+
+    table = prettytable.PrettyTable(["To work", "Worked", "Balance (h)",
+        "Balance (d)"])
+    table.align = "r"
+
+    table.add_row([
+        "{:.2f}".format(nr_hours_to_work),
+        "{:.2f}".format(nr_hours_spent_on_work),
+        "{:.2f}".format(nr_hours_overtime),
+        "{:.2f}".format(nr_days_overtime)
+    ])
+
+    write_table(table, header="overtime")
+
+    # Overall ------------------------------------------------------------------
+    balance_vacation = nr_hours_left
+    balance_overtime = nr_hours_overtime
+    balance_in_hours = nr_hours_left + nr_hours_overtime
+    balance_in_days = balance_in_hours / 8.0
+
+    table = prettytable.PrettyTable(["Balance vacation", "Balance overtime",
+        "Balance (h)", "Balance (d)"])
+    table.align = "r"
+
+    table.add_row([
+        "{:.2f}".format(balance_vacation),
+        "{:.2f}".format(balance_overtime),
+        "{:.2f}".format(balance_in_hours),
+        "{:.2f}".format(balance_in_days)
+    ])
+
+    write_table(table, header="balance")
 
 
 @track_time.checked_call
@@ -108,7 +164,7 @@ def query_hours(
             "{:.2f}".format(record.nr_hours)
         ])
 
-    sys.stdout.write("{}\n".format(table))
+    write_table(table)
 
     merged_records = track_time.merge_records_by_week(selected_records)
     merged_records = sorted(merged_records, key=lambda record: record.date)
@@ -123,7 +179,7 @@ def query_hours(
             "{:+.2f}".format(record.nr_hours - nr_hours_to_work)
         ])
 
-    sys.stdout.write("{}\n".format(table))
+    write_table(table)
 
     # Balance of the whole period.
     table = prettytable.PrettyTable(["Period", "Balance"])
@@ -138,7 +194,7 @@ def query_hours(
             nr_hours_to_work))
     ])
 
-    sys.stdout.write("{}\n".format(table))
+    write_table(table)
 
 
 if __name__ == "__main__":
@@ -152,9 +208,11 @@ if __name__ == "__main__":
             status = query_project(timesheet_pathname, project_pattern,
                 aggregate)
         elif arguments["vacation"]:
-            timesheet_pathname = arguments["<timesheet>"]
+            nr_hours_to_work = int(arguments["<contract>"])
             nr_hours_vacation = int(arguments["<vacation>"])
-            status = query_vacation(timesheet_pathname, nr_hours_vacation)
+            timesheet_pathname = arguments["<timesheet>"]
+            status = query_vacation(timesheet_pathname, nr_hours_to_work,
+                nr_hours_vacation)
         elif arguments["hours"]:
             nr_hours_to_work = int(arguments["<contract>"])
             timesheet_pathname = arguments["<timesheet>"]
