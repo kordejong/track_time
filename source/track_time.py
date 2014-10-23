@@ -148,7 +148,9 @@ def query_hours(
     records = track_time.parse(file(timesheet_pathname, "r"))
     to_time_point = track_time.last_day_of_week(datetime.date.today())
     from_time_point = to_time_point - datetime.timedelta(
-        days=nr_weeks_to_report * 7)
+        days=(nr_weeks_to_report * 7) - 1)
+    assert from_time_point.isocalendar()[2] == 1  # Monday.
+    assert to_time_point.isocalendar()[2] == 7  # Sunday.
     selected_records = track_time.filter_projects_by_date(records,
         from_time_point, to_time_point)
     merged_records = track_time.merge_records_by_date(selected_records)
