@@ -48,6 +48,7 @@ def query_project(
         merged_records = track_time.merge_child_projects_with_parents(
             merged_records)
 
+    # Number of hours per projects ---------------------------------------------
     table = prettytable.PrettyTable(["Project", "Hours", "Days"])
     table.align["Project"] = "l"
     table.align["Hours"] = "r"
@@ -60,6 +61,25 @@ def query_project(
             "{:.2f}".format(record.nr_hours),
             "{:.2f}".format(record.nr_days)
         ])
+
+    write_table(table)
+
+
+    # Number of hours overall --------------------------------------------------
+    table = prettytable.PrettyTable(["Hours", "Days"])
+    table.align["Hours"] = "r"
+    table.align["Days"] = "r"
+
+    nr_hours = 0.0
+    nr_days = 0.0
+    for record in merged_records:
+        nr_hours += record.nr_hours
+        nr_days += record.nr_days
+
+    table.add_row([
+        "{:.2f}".format(nr_hours),
+        "{:.2f}".format(nr_days)
+    ])
 
     write_table(table)
 
@@ -184,19 +204,20 @@ def query_hours(
     write_table(table)
 
     # Balance of the whole period.
-    table = prettytable.PrettyTable(["Period", "Balance"])
-    table.align = "r"
+    if merged_records:
+        table = prettytable.PrettyTable(["Period", "Balance"])
+        table.align = "r"
 
-    record = track_time.merge_records(selected_records)
-    record.date = merged_records[0].date
+        record = track_time.merge_records(selected_records)
+        record.date = merged_records[0].date
 
-    table.add_row([
-        "{} {}".format(record.date.strftime("%a"), record.date),
-        "{:+.2f}".format(record.nr_hours - (nr_weeks_to_report *
-            nr_hours_to_work))
-    ])
+        table.add_row([
+            "{} {}".format(record.date.strftime("%a"), record.date),
+            "{:+.2f}".format(record.nr_hours - (nr_weeks_to_report *
+                nr_hours_to_work))
+        ])
 
-    write_table(table)
+        write_table(table)
 
 
 if __name__ == "__main__":
