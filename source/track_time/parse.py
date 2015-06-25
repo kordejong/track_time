@@ -101,7 +101,8 @@ def parse(
 
                     start_time = date_time(date, time_strings[0].split(":"))
                     end_time = date_time(date, time_strings[1].split(":"))
-                    assert(end_time >= start_time)
+                    assert end_time >= start_time, "{} !>= {}".format(
+                        end_time, start_time)
                     period = end_time - start_time
                     nr_hours += period.total_seconds() / 60.0 / 60.0
 
