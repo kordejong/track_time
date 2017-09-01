@@ -5,19 +5,20 @@ Usage:
     track_time.py query project [--project=<pattern>] [--no_aggregate]
         <timesheet>
     track_time.py query vacation <contract> <vacation> <timesheet>
-    track_time.py query hours [--period=<weeks>] <contract> <timesheet>
+    track_time.py query hours [--project=<pattern>] [--period=<weeks>]
+        <contract> <timesheet>
 
 Arguments:
-    contract             Number of hours to work per week.
-    timesheet            Name of timesheet.
-    vacation             Number of hours vacation per year.
+    contract             Number of hours to work per week
+    timesheet            Name of timesheet
+    vacation             Number of hours vacation per year
 
 Options:
-    --help               Show this screen.
-    --no_aggregate       Don't aggregate per project.
-    --period=<weeks>     Number of weeks to report [default: 3].
-    --project=<pattern>  Name of project [default: *].
-    --version            Show version.
+    --help               Show this screen
+    --no_aggregate       Don't aggregate per project
+    --period=<weeks>     Number of weeks to report [default: 3]
+    --project=<pattern>  Name of project [default: *]
+    --version            Show version
 """
 import datetime
 import docopt
@@ -164,14 +165,17 @@ def query_vacation(
 def query_hours(
         timesheet_pathname,
         nr_hours_to_work,
+        project_pattern,
         nr_weeks_to_report):
-    records = track_time.parse(file(timesheet_pathname, "r"))
+    selected_records = track_time.parse(file(timesheet_pathname, "r"))
     to_time_point = track_time.last_day_of_week(datetime.date.today())
     from_time_point = to_time_point - datetime.timedelta(
         days=(nr_weeks_to_report * 7) - 1)
     assert from_time_point.isocalendar()[2] == 1  # Monday.
     assert to_time_point.isocalendar()[2] == 7  # Sunday.
-    selected_records = track_time.filter_projects_by_date(records,
+    selected_records = track_time.filter_projects_by_name(selected_records,
+        project_pattern)
+    selected_records = track_time.filter_projects_by_date(selected_records,
         from_time_point, to_time_point)
     merged_records = track_time.merge_records_by_date(selected_records)
     merged_records = sorted(merged_records, key=lambda record: record.date)
@@ -239,8 +243,9 @@ if __name__ == "__main__":
         elif arguments["hours"]:
             nr_hours_to_work = int(arguments["<contract>"])
             timesheet_pathname = arguments["<timesheet>"]
+            project_pattern = arguments["--project"]
             nr_weeks_to_report = int(arguments["--period"])
             status = query_hours(timesheet_pathname, nr_hours_to_work,
-                nr_weeks_to_report)
+                project_pattern, nr_weeks_to_report)
 
     sys.exit(status)
